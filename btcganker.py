@@ -9,14 +9,11 @@ import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(current_dir, 'lib')) 
 import bitcoin
-from configparser import ConfigParser
-    
-config = ConfigParser()
-config.read('config.ini')
+import config
 
-CPU_HALF = config.getboolean('DEFAULT', 'CPU_HALF')
-MIN_WORKERS = int(config.get('DEFAULT', 'MIN_WORKERS'))
-ENABLE_INTERNET = config.getboolean('DEFAULT', 'ENABLE_INTERNET')
+CPU_HALF = config.CPU_HALF
+MIN_WORKERS = config.MIN_WORKERS
+ENABLE_INTERNET = config.ENABLE_INTERNET
 
 def generate_key():
     try:
@@ -60,11 +57,11 @@ def save_key(private_key, public_key, address):
 def send_mail(private_key, public_key, address):
     print('Send mail')
 
-    smtp_server = config.get('EMAIL', 'SMTP_SERVER') 
-    smtp_port = config.get('EMAIL', 'SMTP_PORT')                
-    sender_email = config.get('EMAIL', 'SENDER_EMAIL') 
-    receiver_email = config.get('EMAIL', 'RECEIVER_EMAIL') 
-    password = config.get('EMAIL', 'SENDER_PASSWORD') 
+    smtp_server = config.SMTP_SERVER
+    smtp_port = config.SMTP_PORT                
+    sender_email = config.SENDER_EMAIL
+    receiver_email = config.RECEIVER_EMAIL
+    password = config.SENDER_PASSWORD
 
     message = MIMEText(private_key+'-'+public_key+'-'+address, 'plain', 'utf-8') 
     message['From'] = Header('<%s>' % sender_email, 'utf-8')
@@ -88,7 +85,7 @@ def main():
         nowTIME=time.time()
         if emailFlag:
             i += 1
-            if nowTIME-starTIME > 600:
+            if nowTIME-starTIME > 10:
                 emailFlag = False
                 print('Now time-' +  str(nowTIME))
                 print('Already running-' + str(i))
