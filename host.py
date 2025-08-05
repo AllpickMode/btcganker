@@ -20,7 +20,6 @@ TARGET_HASHES = {hashlib.sha256(hashlib.sha256(base58.b58decode(address)).digest
 
 def generate_key_pair():
     private_key=os.urandom(32)
-    # private_key = bytes.fromhex('e7331a4ce57158415cc81fc98140d9fec0293984417bf12f04947b32161f6166')
     sk = ecdsa.SigningKey.from_string(private_key, curve=ecdsa.SECP256k1)
     vk = sk.get_verifying_key()
     public_key = b'\x04' + vk.to_string()
@@ -45,32 +44,21 @@ def check_and_save_batch(key_pairs):
     return found
 
 def worker():
-    # timestart = time.perf_counter()
-    # last_report = time.perf_counter()
-    # total_generated = 0
     while True:
         key_pairs = generate_key_pairs_batch()
-        # total_generated += len(key_pairs)
         if check_and_save_batch(key_pairs):
             print(f"Found matching address in batch")
             break
-        # if time.perf_counter() - last_report > 10:
-        #     elapsed = time.perf_counter() - timestart
-        #     rate = total_generated / elapsed
-        #     print(f"Generated: {total_generated} | Rate: {rate:.0f} keys/sec")
-        #     last_report = time.perf_counter()
-        #     total_generated = 0
-        #     timestart = time.perf_counter()
 
 def main():
-    print("Starting optimized Bitcoin address generator")
+    print("Starting")
     num_cores = multiprocessing.cpu_count()
     if CPU_HALF:
         num_workers = max(int(num_cores / 2), MIN_WORKERS)
-        print("Running in low power mode")
+        print("Low mode")
     else:
         num_workers = max(num_cores - 1, MIN_WORKERS)
-        print("Running in high performance mode")
+        print("High mode")
     print(f"Using {num_workers} worker processes")
     print(f"Target addresses: {len(TARGET_ADDRESSES)}")
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
